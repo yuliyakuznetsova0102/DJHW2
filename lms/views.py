@@ -6,13 +6,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from .paginators import LessonPaginator
+from .paginators import LessonPaginator, CoursePaginator
 
 
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
-
+    pagination_class = CoursePaginator
     def get_permissions(self):
         if self.action in ['create', 'destroy', 'update', 'partial_update']:
             self.permission_classes = [IsAuthenticated, IsOwner | IsModerator]

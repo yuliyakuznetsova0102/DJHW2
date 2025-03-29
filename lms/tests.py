@@ -4,6 +4,9 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from .models import Lesson, Course, Subscription
 from users.models import User
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class LessonTestCase(TestCase):
@@ -66,13 +69,6 @@ class LessonTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Lesson.objects.filter(id=self.lesson.id).exists())
 
-
-from django.urls import reverse
-from django.test import TestCase
-from rest_framework.test import APIClient
-from rest_framework import status
-from users.models import User
-from lms.models import Course, Subscription
 
 
 class SubscriptionTests(TestCase):
