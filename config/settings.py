@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'lms',
     'django_filters',
     'rest_framework_simplejwt',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -137,9 +138,21 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
 
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'drf_spectacular.openapi.AutoSchema',
     ),
 }
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'LMS API',
+    'DESCRIPTION': 'API для системы управления обучением',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
+
+
+STRIPE_SECRET_KEY = 'your_test_secret_key'
+STRIPE_PUBLIC_KEY = 'your_test_public_key'
+STRIPE_WEBHOOK_SECRET = 'your_webhook_secret'

@@ -85,39 +85,36 @@ class SubscriptionTests(TestCase):
         self.url = reverse('subscription-list')
 
     def test_subscription_lifecycle(self):
-        """Полный тест цикла подписки"""
-        # Аутентификация
         self.client.force_authenticate(user=self.user)
 
-        # 1. Тест создания подписки
-        response = self.client.post(
-            self.url,
-            {'course': self.course.id},  # Используем имя поля модели
-            format='json'
-        )
 
-        # Если все равно падает, добавим отладочный вывод
-        if response.status_code != status.HTTP_201_CREATED:
-            print(f"Ошибка создания подписки: {response.data}")
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data.get('message'), 'Подписка добавлена')
-
-        # Проверяем создание в БД
-        subscription = Subscription.objects.filter(
-            user=self.user,
-            course=self.course
-        ).first()
-        self.assertIsNotNone(subscription)
-
-        # 2. Тест удаления подписки
         response = self.client.post(
             self.url,
             {'course': self.course.id},
             format='json'
         )
 
-        # Отладочный вывод при ошибке
+        if response.status_code != status.HTTP_201_CREATED:
+            print(f"Ошибка создания подписки: {response.data}")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data.get('message'), 'Подписка добавлена')
+
+
+        subscription = Subscription.objects.filter(
+            user=self.user,
+            course=self.course
+        ).first()
+        self.assertIsNotNone(subscription)
+
+
+        response = self.client.post(
+            self.url,
+            {'course': self.course.id},
+            format='json'
+        )
+
+
         if response.status_code != status.HTTP_200_OK:
             print(f"Ошибка удаления подписки: {response.data}")
 
@@ -131,8 +128,6 @@ class SubscriptionTests(TestCase):
         )
 
     def test_unauthorized_access(self):
-        """Тест доступа без авторизации"""
-        # Явно сбрасываем аутентификацию
         self.client.force_authenticate(user=None)
 
         response = self.client.post(
@@ -141,6 +136,6 @@ class SubscriptionTests(TestCase):
             format='json'
         )
 
-        # Проверяем, что есть сообщение об ошибке
+
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertIn('detail', response.data)
