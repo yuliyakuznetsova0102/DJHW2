@@ -16,7 +16,7 @@ from .services.stripe import (
 from django.urls import reverse
 from django.conf import settings
 from lms.services  import stripe
-
+from .tasks import send_course_update_notification
 
 
 
@@ -40,8 +40,9 @@ class CourseViewSet(viewsets.ModelViewSet):
             self.permission_classes = [IsAuthenticated, IsOwner | IsModerator]
         return [permission() for permission in self.permission_classes]
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        send_course_update_notification.delay(instance.id)
 
 
 
