@@ -16,11 +16,9 @@ def send_course_update_notification(self, course_id):
         course = Course.objects.get(id=course_id)
         subscriptions = Subscription.objects.filter(course=course).select_related('user')
 
-
         if course.updated_at >= timezone.now() - timedelta(hours=4):
             logger.info(f"Course {course_id} was updated recently, skipping notifications")
             return "No notifications sent - course was updated recently"
-
 
         sent_count = 0
         for subscription in subscriptions:
@@ -48,7 +46,6 @@ def send_course_update_notification(self, course_id):
     except Exception as exc:
         logger.error(f"Error in send_course_update_notification: {str(exc)}")
         raise self.retry(exc=exc, countdown=60)
-
 
 
 User = get_user_model()

@@ -5,9 +5,9 @@ from users.permissions import IsModerator, IsOwner
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
 from .paginators import LessonPaginator, CoursePaginator
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+from .services import stripe
 from .services.stripe import (
     create_stripe_product,
     create_stripe_price,
@@ -15,10 +15,7 @@ from .services.stripe import (
 )
 from django.urls import reverse
 from django.conf import settings
-from lms.services  import stripe
 from .tasks import send_course_update_notification
-
-
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -35,6 +32,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     pagination_class = CoursePaginator
+
     def get_permissions(self):
         if self.action in ['create', 'destroy', 'update', 'partial_update']:
             self.permission_classes = [IsAuthenticated, IsOwner | IsModerator]
@@ -45,13 +43,10 @@ class CourseViewSet(viewsets.ModelViewSet):
         send_course_update_notification.delay(instance.id)
 
 
-
-
 class LessonViewSet(viewsets.ModelViewSet):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     pagination_class = LessonPaginator
-
 
     def get_permissions(self):
         if self.action in ['create', 'destroy', 'update', 'partial_update']:
@@ -70,8 +65,6 @@ class LessonListCreateView(generics.ListCreateAPIView):
 class LessonRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
-
-
 
 
 class SubscriptionAPIView(APIView):
@@ -111,8 +104,6 @@ class SubscriptionAPIView(APIView):
             )
 
 
-
-
 class CreatePaymentView(APIView):
     def post(self, request, *args, **kwargs):
         user = request.user
@@ -132,18 +123,15 @@ class CreatePaymentView(APIView):
             item = Lesson.objects.get(id=lesson_id)
             item_type = 'lesson'
 
-
         product = create_stripe_product(
             name=f'{item_type.title()}: {item.title}',
             description=item.description
         )
 
-
         price = create_stripe_price(
             product_id=product.id,
             amount=item.price if hasattr(item, 'price') else 1000
         )
-
 
         success_url = request.build_absolute_uri(
             reverse('payment-success')
@@ -157,7 +145,6 @@ class CreatePaymentView(APIView):
             success_url=success_url,
             cancel_url=cancel_url
         )
-
 
         payment = Payment.objects.create(
             user=user,
@@ -181,6 +168,7 @@ class CreatePaymentView(APIView):
 class PaymentSuccessView(APIView):
     def get(self, request, *args, **kwargs):
         return Response({'status': 'Payment successful'})
+
 
 class PaymentCancelView(APIView):
     def get(self, request, *args, **kwargs):

@@ -4,9 +4,6 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from .models import Lesson, Course, Subscription
 from users.models import User
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
 
 
 class LessonTestCase(TestCase):
@@ -70,7 +67,6 @@ class LessonTestCase(TestCase):
         self.assertFalse(Lesson.objects.filter(id=self.lesson.id).exists())
 
 
-
 class SubscriptionTests(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -87,7 +83,6 @@ class SubscriptionTests(TestCase):
     def test_subscription_lifecycle(self):
         self.client.force_authenticate(user=self.user)
 
-
         response = self.client.post(
             self.url,
             {'course': self.course.id},
@@ -100,20 +95,17 @@ class SubscriptionTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data.get('message'), 'Подписка добавлена')
 
-
         subscription = Subscription.objects.filter(
             user=self.user,
             course=self.course
         ).first()
         self.assertIsNotNone(subscription)
 
-
         response = self.client.post(
             self.url,
             {'course': self.course.id},
             format='json'
         )
-
 
         if response.status_code != status.HTTP_200_OK:
             print(f"Ошибка удаления подписки: {response.data}")
@@ -135,7 +127,6 @@ class SubscriptionTests(TestCase):
             {'course': self.course.id},
             format='json'
         )
-
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertIn('detail', response.data)

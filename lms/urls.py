@@ -1,9 +1,9 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import CourseViewSet, LessonListCreateView, LessonRetrieveUpdateDestroyView, SubscriptionAPIView, CreatePaymentView, PaymentSuccessView, PaymentCancelView, StripeWebhookView
+from .views import (CourseViewSet, LessonListCreateView, LessonRetrieveUpdateDestroyView,
+                    SubscriptionAPIView, CreatePaymentView, PaymentSuccessView,
+                    PaymentCancelView, StripeWebhookView)
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
-
-
 
 
 router = DefaultRouter()

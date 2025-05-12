@@ -3,7 +3,6 @@ from .models import Course, Lesson, Subscription
 from .validators import validate_youtube_url
 
 
-
 class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
@@ -11,6 +10,7 @@ class LessonSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'video_link': {'validators': [validate_youtube_url]},
         }
+
 
 class CourseSerializer(serializers.ModelSerializer):
     lessons_count = serializers.SerializerMethodField()

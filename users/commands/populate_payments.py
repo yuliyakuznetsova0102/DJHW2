@@ -3,6 +3,7 @@ from users.models import Payment, User
 from lms.models import Course, Lesson
 from datetime import datetime
 
+
 class Command(BaseCommand):
     help = 'Populates the Payment model with sample data'
 

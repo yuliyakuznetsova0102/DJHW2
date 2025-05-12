@@ -1,10 +1,8 @@
-from rest_framework.views import APIView, Response
-from lms.models import Payment
-
 import stripe
 from django.conf import settings
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
+
 
 def create_stripe_product(name, description):
     return stripe.Product.create(
@@ -12,12 +10,14 @@ def create_stripe_product(name, description):
         description=description
     )
 
+
 def create_stripe_price(product_id, amount, currency='usd'):
     return stripe.Price.create(
         product=product_id,
         unit_amount=int(amount * 100),  # Конвертируем в центы
         currency=currency
     )
+
 
 def create_stripe_checkout_session(price_id, success_url, cancel_url):
     return stripe.checkout.Session.create(
@@ -30,5 +30,3 @@ def create_stripe_checkout_session(price_id, success_url, cancel_url):
         success_url=success_url,
         cancel_url=cancel_url,
     )
-
-
