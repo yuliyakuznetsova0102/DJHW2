@@ -1,51 +1,46 @@
 name: Django CI
 
-on: [ push, pull_request ]
+on: [push, pull_request]
 
 env:
   SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-  ANOTHER_VAR: value
   DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
-  run: python manage.py test
+  PYTHONUNBUFFERED: 1
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.13"
 
-      - name: Install flake8
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8
+          pip install flake8 python-dotenv
+          pip install -r requirements.txt
 
       - name: Run flake8
         run: flake8 .
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-          pip install python-dotenv
 
   test:
     needs: lint
     runs-on: ubuntu-latest
 
-  services:
-    postgres:
-    image: postgres:14
-    env:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: test_db
-    ports:
-      - 5432:5432
-    options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
       - uses: actions/checkout@v3
@@ -53,45 +48,47 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-        python-version: "3.13"
+          python-version: "3.13"
 
       - name: Install dependencies
         run: |
-           python -m pip install --upgrade pip
-           pip install -r requirements.txt psycopg2-binary
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt psycopg2-binary
 
       - name: Run tests
         env:
           GITHUB_ACTIONS: 'true'
-          SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-    run: |
-      python manage.py migrate
-      python manage.py test
+        run: |
+          python manage.py migrate
+          python manage.py test
 
   build:
     needs: test
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/online_work:${{ github.sha }} .
-
-      - name: Push Docker image to Docker Hub
-        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/online_work:${{ github.sha }}
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/online_work:${{ github.sha }}
 
   deploy:
     needs: build
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.9.0
