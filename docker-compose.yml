@@ -1,9 +1,9 @@
 services:
-  db:  # Это имя сервиса, которое будет использоваться для подключения
+  db:
     image: postgres:13
-    container_name: postgres_db  # Можно задать любое имя контейнера
+    container_name: postgres_db
     environment:
-      POSTGRES_DB: ${DATABASE_NAME}  # DJHW2 из .env файла
+      POSTGRES_DB: ${DATABASE_NAME}
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     volumes:
