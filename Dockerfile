@@ -1,22 +1,21 @@
-FROM python:3.9-slim-bookworm
-
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    gcc \
-    python3-dev \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+FROM python:3.13
 
 WORKDIR /app
 
+RUN apt-get update \
+    && apt-get install -y gcc libpq-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir wheel && \
-    pip install --no-cache-dir psycopg2-binary==2.9.9 && \
-    pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml poetry.lock ./
+
+RUN pip install --upgrade pip \
+    && pip install poetry \
+    && poetry config virtualenvs.create false \
+    && poetry install --no-root
 
 COPY . .
 
 EXPOSE 8000
+
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
