@@ -1,30 +1,22 @@
-# Используем официальный образ Python с конкретной версией
-FROM python:3.9-slim
+FROM python:3.9-slim-bookworm
 
-# Устанавливаем системные зависимости для psycopg2 и чистки
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     gcc \
     python3-dev \
-    libpq-dev && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Устанавливаем рабочую директорию в контейнере
 WORKDIR /app
 
-# Сначала копируем только requirements.txt для кэширования слоя
-COPY requirements.txt ./
 
-# Устанавливаем зависимости (с явным указанием psycopg2-binary)
+COPY requirements.txt .
 RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt psycopg2-binary==2.9.9
+    pip install --no-cache-dir wheel && \
+    pip install --no-cache-dir psycopg2-binary==2.9.9 && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Копируем остальные файлы проекта в контейнер
 COPY . .
 
-# Открываем порт 8000 для взаимодействия с приложением
 EXPOSE 8000
-
-# Определяем команду для запуска приложения
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
