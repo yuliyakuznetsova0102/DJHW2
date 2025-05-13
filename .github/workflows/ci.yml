@@ -32,12 +32,12 @@ jobs:
         run: pip install -r requirements.txt
           pip install python-dotenv
 
-test:
-  needs: lint
-  runs-on: ubuntu-latest
+  test:
+    needs: lint
+    runs-on: ubuntu-latest
 
   services:
-    postgres:
+      postgres:
       image: postgres:14
       env:
         POSTGRES_USER: postgres
