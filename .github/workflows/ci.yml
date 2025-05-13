@@ -98,8 +98,8 @@ jobs:
       - name: Deploy to Server
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-          docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/online_work:${{ github.sha }}
-          docker stop online_work || true
-          docker rm online_work || true
-          docker run -d --name online_work -p 80:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/online_work:${{ github.sha }}
+          docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/DJHW2:${{ github.sha }}
+          docker stop DJHW2 || true
+          docker rm DJHW2 || true
+          docker run -d --name DJHW2 -p 80:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/DJHW2:${{ github.sha }}
           EOF
