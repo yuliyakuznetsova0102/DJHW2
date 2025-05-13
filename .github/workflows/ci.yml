@@ -90,18 +90,27 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up SSH
+      - name: Add SSH Key
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: |
-            ${{ secrets.SSH_KEY }}
-          ssh-key-type: "openssh"
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Configure known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
 
       - name: Deploy to Server
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no \
+              -o UserKnownHostsFile=/dev/null \
+              ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
           docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/online_work:${{ github.sha }}
           docker stop online_work || true
           docker rm -f online_work || true
-          docker run -d --name online_work -p 8080:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/online_work:${{ github.sha }}
+          docker run -d \
+            --name online_work \
+            -p 8080:8000 \
+            -e SECRET_KEY='${{ secrets.DJANGO_SECRET_KEY }}' \
+            ${{ secrets.DOCKER_HUB_USERNAME }}/online_work:${{ github.sha }}
           EOF
