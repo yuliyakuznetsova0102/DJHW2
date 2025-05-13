@@ -26,6 +26,9 @@ jobs:
       - name: Run flake8
         run: flake8 .
 
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
   test:
     needs: lint
     runs-on: ubuntu-latest
