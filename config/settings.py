@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from dotenv import load_dotenv
 from pathlib import Path
-from urllib.parse import urlparse
 
 
 load_dotenv(override=True)
