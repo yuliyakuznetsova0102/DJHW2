@@ -17,6 +17,7 @@ pillow = "^11.1.0"
 celery = "^5.5.0"
 redis = "^5.2.1"
 django-celery-beat = "^2.7.0"
+stripe = "^12.1.0"
 
 
 [tool.poetry.group.lint.dependencies]
