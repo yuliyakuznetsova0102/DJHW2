@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
-from lms.models import Course, Lesson
+
 
 
 class UserManager(BaseUserManager):
@@ -34,7 +34,7 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
-    objects = UserManager()  # Указываем кастомный менеджер
+    objects = UserManager()
 
     def __str__(self):
         return self.email
@@ -46,10 +46,26 @@ class Payment(models.Model):
         ('transfer', 'Перевод на счет'),
     ]
 
-    user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='payments')
+    user = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+        related_name='user_payments'
+    )
     payment_date = models.DateTimeField(auto_now_add=True)
-    paid_course = models.ForeignKey(Course, on_delete=models.SET_NULL, null=True, blank=True)
-    paid_lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True, blank=True)
+    paid_course = models.ForeignKey(
+        'lms.Course',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='course_user_payments'
+    )
+    paid_lesson = models.ForeignKey(
+        'lms.Lesson',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='lesson_user_payments'
+    )
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_method = models.CharField(max_length=10, choices=PAYMENT_METHOD_CHOICES)
 

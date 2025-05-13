@@ -1,8 +1,11 @@
 from django.core.management.base import BaseCommand
-from users.models import Payment, User
+from users.models import Payment
 from lms.models import Course, Lesson
 from datetime import datetime
+from django.contrib.auth import get_user_model
 
+
+User = get_user_model()
 
 class Command(BaseCommand):
     help = 'Populates the Payment model with sample data'

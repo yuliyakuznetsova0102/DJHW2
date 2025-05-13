@@ -1,12 +1,15 @@
 from rest_framework import viewsets
-from .models import Payment, User
+from .models import Payment
 from users.serializers import PaymentSerializer, UserSerializer, UserRegistrationSerializer
 from .filters import PaymentFilter
 from django_filters import rest_framework as filters
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
+from django.contrib.auth import get_user_model
 
+
+User = get_user_model()
 
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
