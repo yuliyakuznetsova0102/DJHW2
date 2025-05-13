@@ -92,11 +92,22 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
+      - name: Test SSH connection
+        run: ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "echo SSH connection successful"
+
       - name: Deploy to Server
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/DJHW2:${{ github.sha }}
+            echo "Logging in to Docker Hub"
+            echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+            echo "Pulling the Docker image"
+            docker pull "${{ secrets.DOCKER_HUB_USERNAME }}/DJHW2:${{ github.sha }}"
+
+            echo "Stopping and removing old container"
             docker stop DJHW2 || true
             docker rm DJHW2 || true
-            docker run -d --name DJHW2 -p 80:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/DJHW2:${{ github.sha }}
+
+            echo "Starting new container"
+            docker run -d --name DJHW2 -p 80:8000 "${{ secrets.DOCKER_HUB_USERNAME }}/DJHW2:${{ github.sha }}"
           EOF
