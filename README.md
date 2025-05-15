@@ -39,11 +39,6 @@ docker-compose logs
 docker-compose down
 ```
 
-## Сервер
-```
-
-```
-
 ## Настройка сервера 
 1. Запускаем сервер:
 ```
