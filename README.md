@@ -47,7 +47,7 @@ ssh SSH_USER@IP_SERVER
 2. Обновляем системы:
 ```
 sudo apt update
-sudo apt upgarde 
+sudo apt upgrade 
 ```
 3. Установка Docker compose по документации:
 ```
