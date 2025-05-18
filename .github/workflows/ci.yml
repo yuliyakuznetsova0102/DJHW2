@@ -114,9 +114,18 @@ jobs:
 
       - name: Deploy to Server
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-          docker pull ${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}
-          docker stop myapp || true
-          docker rm -f myapp || true
-          docker run -d --name myapp -p 8080:8000 ${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}
-          EOF
+          ssh -o StrictHostKeyChecking=no \
+          ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} \
+          "docker pull ${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}"
+
+          ssh -o StrictHostKeyChecking=no \
+          ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} \
+          "docker stop myapp || true"
+
+          ssh -o StrictHostKeyChecking=no \
+          ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} \
+          "docker rm -f myapp || true"
+
+          ssh -o StrictHostKeyChecking=no \
+          ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} \
+          "docker run -d --name myapp -p 8080:8000 ${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}"
